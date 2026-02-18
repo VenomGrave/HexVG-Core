@@ -1,0 +1,21 @@
+# HexVG-Core - Wiadomości PL
+# --------------------------
+
+# Ogólne
+no-permission: "&cNie masz uprawnień do tej komendy!"
+player-only: "&cTa komenda jest tylko dla graczy!"
+player-not-found: "&cGracz &e{player} &cnie został znaleziony!"
+invalid-number: "&cPodana wartość musi być liczbą!"
+invalid-usage: "&cNieprawidłowe użycie! Wpisz &e{usage}"
+
+# Cooldown
+cooldown: "&cMusisz poczekać jeszcze &e{time} &cprzed ponownym użyciem!"
+
+# Baza danych
+database-error: "&cWystąpił błąd bazy danych. Skontaktuj się z administratorem!"
+database-connected: "&aPołączono z bazą danych!"
+database-disconnected: "&cRozłączono z bazą danych!"
+
+# Core komendy
+core-reload: "&aKonfiguracja HexVG-Core została przeładowana!"
+core-info: "&6HexVG-Core &ev{version} &7| &aAktywny"

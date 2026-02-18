@@ -1,0 +1,21 @@
+# HexVG-Core - Messages EN
+# --------------------------
+
+# General
+no-permission: "&cYou don't have permission to use this command!"
+player-only: "&cThis command is for players only!"
+player-not-found: "&cPlayer &e{player} &cwas not found!"
+invalid-number: "&cThe provided value must be a number!"
+invalid-usage: "&cInvalid usage! Type &e{usage}"
+
+# Cooldown
+cooldown: "&cYou must wait &e{time} &cbefore using this again!"
+
+# Database
+database-error: "&cA database error occurred. Please contact an administrator!"
+database-connected: "&aConnected to the database!"
+database-disconnected: "&cDisconnected from the database!"
+
+# Core commands
+core-reload: "&aHexVG-Core configuration has been reloaded!"
+core-info: "&6HexVG-Core &ev{version} &7| &aActive"

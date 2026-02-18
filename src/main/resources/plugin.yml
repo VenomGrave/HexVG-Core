@@ -1,0 +1,17 @@
+name: HexVG-Core
+version: '${project.version}'
+main: com.hexvg.core.HexVGCore
+api-version: 1.16
+authors: [ HexVG ]
+description: Core plugin dla serwerów HexVG
+
+commands:
+  hexcore:
+    description: Komenda główna HexVG-Core
+    usage: /hexcore
+    permission: hexvg.core.admin
+
+permissions:
+  hexvg.core.admin:
+    description: Dostęp do komend administracyjnych Core
+    default: op

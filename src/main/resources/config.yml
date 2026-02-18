@@ -1,0 +1,43 @@
+# HexVG-Core Configuration
+# --------------------------
+
+# Ustawienia bazy danych
+database:
+  # Typ bazy: MYSQL, SQLITE, MONGODB
+  type: SQLITE
+
+  # MySQL / MariaDB
+  mysql:
+    host: localhost
+    port: 3306
+    database: hexvg
+    username: root
+    password: password
+    # HikariCP pool settings
+    pool:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
+  # SQLite
+  sqlite:
+    file: hexvg.db
+
+  # MongoDB
+  mongodb:
+    uri: mongodb://localhost:27017
+    database: hexvg
+
+# Ustawienia wiadomości
+messages:
+  prefix: "&8[&6HexVG&8] "
+  # Język: pl, en
+  language: pl
+
+# Ustawienia logowania
+logging:
+  debug: false
+  log-to-file: false
+  log-file: logs/hexvg-core.log
