@@ -1,7 +1,6 @@
 package com.hexvg.core.commands;
 
 import com.hexvg.core.HexVGCore;
-import com.hexvg.core.utils.ChatUtils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -39,10 +38,10 @@ public class CoreCommand extends BaseCommand {
         }
 
         switch (args[0].toLowerCase()) {
-            case "info" -> sendInfo(sender);
+            case "info"   -> sendInfo(sender);
             case "reload" -> handleReload(sender);
             case "status" -> handleStatus(sender);
-            default -> sendHelp(sender);
+            default       -> sendHelp(sender);
         }
 
         return true;

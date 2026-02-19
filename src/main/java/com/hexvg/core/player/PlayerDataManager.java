@@ -2,13 +2,13 @@ package com.hexvg.core.player;
 
 import com.hexvg.core.HexVGCore;
 import com.hexvg.core.utils.Logger;
-import lombok.Getter;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
@@ -17,29 +17,29 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Menedżer danych graczy - centralny profil gracza dostępny dla wszystkich pluginów.
- * Trzyma dane w pamięci podczas sesji i umożliwia zapis/odczyt z bazy danych.
+ * Trzyma dane w pamięci podczas sesji i zapisuje/odczytuje z bazy danych.
  *
  * Użycie z innych pluginów:
  * <pre>
  *     PlayerDataManager pdm = HexVGCore.getInstance().getPlayerDataManager();
  *
- *     // Pobierz profil gracza
  *     Optional<CorePlayerData> data = pdm.getPlayerData(player.getUniqueId());
  *     data.ifPresent(d -> {
  *         String name = d.getPlayerName();
- *         // ...
  *     });
  * </pre>
  */
 public class PlayerDataManager implements Listener {
 
     private final HexVGCore plugin;
+    private final PlayerDataRepository repository;
 
     // Cache: UUID -> dane gracza
     private final Map<UUID, CorePlayerData> playerCache = new ConcurrentHashMap<>();
 
     public PlayerDataManager(HexVGCore plugin) {
         this.plugin = plugin;
+        this.repository = new PlayerDataRepository(plugin);
 
         // Rejestracja event listenerów
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
@@ -53,16 +53,12 @@ public class PlayerDataManager implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        // Ładowanie async by nie blokować głównego wątku
-        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
-            loadPlayerData(player);
-        });
+        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> loadPlayerData(player));
     }
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         UUID uuid = event.getPlayer().getUniqueId();
-        // Zapisz dane przed usunięciem z cache
         plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
             savePlayerData(uuid);
             playerCache.remove(uuid);
@@ -72,18 +68,39 @@ public class PlayerDataManager implements Listener {
 
     /**
      * Ładuje dane gracza z bazy danych do cache.
+     * Jeśli gracz nie istnieje w DB - tworzy nowy profil.
      */
     private void loadPlayerData(Player player) {
         UUID uuid = player.getUniqueId();
+        if (playerCache.containsKey(uuid)) {
+            CorePlayerData data = playerCache.get(uuid);
+            data.setPlayerName(player.getName());
+            data.setLastJoin(Instant.now());
+            return;
+        }
 
-        if (playerCache.containsKey(uuid)) return;
+        Optional<CorePlayerData> fromDb = repository.load(uuid);
 
-        // Tutaj możesz dodać ładowanie z DB
-        // Na razie tworzymy nowy profil
-        CorePlayerData data = new CorePlayerData(uuid, player.getName());
+        CorePlayerData data;
+        if (fromDb.isPresent()) {
+            data = fromDb.get();
+            data.setPlayerName(player.getName());
+            data.setLastJoin(Instant.now());
+            repository.updateLastJoin(uuid);
+            Logger.debug("Załadowano istniejące dane gracza: " + player.getName());
+        } else {
+            data = new CorePlayerData(uuid, player.getName());
+            repository.save(data);
+            Logger.debug("Utworzono nowe dane gracza: " + player.getName());
+        }
+
         playerCache.put(uuid, data);
 
-        Logger.debug("Załadowano dane gracza: " + player.getName());
+        // Wywołaj event na głównym wątku
+        CorePlayerData finalData = data;
+        plugin.getServer().getScheduler().runTask(plugin, () ->
+                plugin.getServer().getPluginManager().callEvent(new CorePlayerDataLoadEvent(finalData))
+        );
     }
 
     /**
@@ -92,42 +109,29 @@ public class PlayerDataManager implements Listener {
     private void savePlayerData(UUID uuid) {
         CorePlayerData data = playerCache.get(uuid);
         if (data == null) return;
-
-        // Tutaj możesz dodać zapis do DB
-        Logger.debug("Zapisano dane gracza: " + data.getPlayerName());
+        repository.save(data);
     }
 
-    /**
-     * Zwraca dane gracza z cache.
-     */
     public Optional<CorePlayerData> getPlayerData(UUID uuid) {
         return Optional.ofNullable(playerCache.get(uuid));
     }
 
-    /**
-     * Zwraca dane gracza bezpośrednio (może być null).
-     */
     public CorePlayerData getPlayerDataOrNull(UUID uuid) {
         return playerCache.get(uuid);
     }
 
-    /**
-     * Sprawdza czy dane gracza są załadowane.
-     */
     public boolean isLoaded(UUID uuid) {
         return playerCache.containsKey(uuid);
     }
 
-    /**
-     * Zwraca wszystkich graczy w cache.
-     */
+    public PlayerDataRepository getRepository() {
+        return repository;
+    }
+
     public Collection<CorePlayerData> getAllCachedPlayers() {
         return playerCache.values();
     }
 
-    /**
-     * Zapisuje dane wszystkich graczy (np. przy wyłączaniu serwera).
-     */
     public void saveAll() {
         Logger.info("Zapisywanie danych " + playerCache.size() + " graczy...");
         playerCache.keySet().forEach(this::savePlayerData);

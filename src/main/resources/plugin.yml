@@ -3,6 +3,7 @@ version: '${project.version}'
 main: com.hexvg.core.HexVGCore
 api-version: 1.16
 authors: [ HexVG ]
+softdepend: [Vault, PlaceholderAPI]
 description: Core plugin dla serwerów HexVG
 
 commands:

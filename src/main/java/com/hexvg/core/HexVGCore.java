@@ -1,6 +1,10 @@
 package com.hexvg.core;
 
 import com.hexvg.core.commands.CoreCommand;
+import com.hexvg.core.database.migration.MigrationManager;
+import com.hexvg.core.events.EventBus;
+import com.hexvg.core.integrations.PlaceholderAPIIntegration;
+import com.hexvg.core.integrations.VaultIntegration;
 import com.hexvg.core.config.ConfigManager;
 import com.hexvg.core.cooldown.CooldownManager;
 import com.hexvg.core.database.DatabaseManager;
@@ -29,6 +33,18 @@ public class HexVGCore extends JavaPlugin {
 
     @Getter
     private PlayerDataManager playerDataManager;
+
+    @Getter
+    private MigrationManager migrationManager;
+
+    @Getter
+    private EventBus eventBus;
+
+    @Getter
+    private VaultIntegration vaultIntegration;
+
+    @Getter
+    private PlaceholderAPIIntegration placeholderAPIIntegration;
 
     @Override
     public void onEnable() {
@@ -79,8 +95,19 @@ public class HexVGCore extends JavaPlugin {
         // 5. Cooldown
         cooldownManager = new CooldownManager();
 
-        // 6. Dane graczy
+        // 6. Migracje bazy danych
+        migrationManager = new MigrationManager(this);
+        migrationManager.initialize();
+
+        // 7. EventBus
+        eventBus = new EventBus(this);
+
+        // 8. Dane graczy (po migracjach!)
         playerDataManager = new PlayerDataManager(this);
+
+        // 9. Integracje (na końcu - Vault/PAPI mogą nie być załadowane)
+        vaultIntegration = new VaultIntegration(this);
+        placeholderAPIIntegration = new PlaceholderAPIIntegration(this);
     }
 
     /**
