@@ -1,0 +1,39 @@
+# ╔══════════════════════════════════════════════════════════════╗
+# ║                   HexVG-Core  config.yml                     ║
+# ║          Nie usuwaj kluczy — plugin ich potrzebuje           ║
+# ╚══════════════════════════════════════════════════════════════╝
+
+# ── Baza danych ───────────────────────────────────────────────────────────────
+database:
+
+  # Typ bazy danych: MYSQL lub SQLITE
+  # SQLITE — plik lokalny, zero konfiguracji, idealne na małe serwery
+  # MYSQL  — zewnętrzna baza, wymagana dla wielu instancji / BungeeCord
+  type: SQLITE
+
+  mysql:
+    host: "localhost"
+    port: 3306
+    database: "hexvg"
+    user: "root"
+    password: ""
+
+    # Szyfrowanie połączenia SSL (zalecane na produkcji)
+    ssl: false
+
+    # Rozmiar puli połączeń HikariCP
+    # Zalecane: (2 × liczba rdzeni CPU) + 1
+    # Minimum: 2, Maksimum: 50
+    pool-size: 10
+
+# ── Ogólne ────────────────────────────────────────────────────────────────────
+general:
+
+  # Język wiadomości pluginu
+  # Dostępne: pl, en
+  # Plik językowy: plugins/HexVG-Core/messages_{language}.yml
+  language: pl
+
+  # Tryb debug — szczegółowe logi w konsoli
+  # Wyłącz na produkcji — generuje dużo logów
+  debug: false

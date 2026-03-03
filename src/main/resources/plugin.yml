@@ -1,0 +1,12 @@
+name: HexVG-Core
+version: '${project.version}'
+main: com.venomgrave.hexvg.HexVGCore
+api-version: 1.16
+load: STARTUP
+authors:
+  - VenomGrave
+description: "Biblioteka bazowa dla pluginów HexVG"
+
+softdepend:
+  - LuckPerms
+  - Vault
